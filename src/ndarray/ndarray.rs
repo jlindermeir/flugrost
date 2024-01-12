@@ -1,5 +1,5 @@
-use std::ops::{Add, Index, Neg, Sub};
-use crate::ndarray::shape::{Const, Rank1, Shape};
+use std::ops::{Add, Div, Index, Neg, Sub};
+use crate::ndarray::shape::{Const, Rank0, Rank1, Rank2, Shape};
 
 pub struct NDArray<T, S: Shape> {
     pub shape: S,
@@ -25,11 +25,20 @@ impl<T: Copy, S: Shape> Index<S::Indices> for NDArray<T, S> {
 }
 
 pub trait IntoNDArray<T, S: Shape> {
-    fn into_tensor(self) -> NDArray<T, S>;
+    fn into_array(self) -> NDArray<T, S>;
 }
 
-impl<T: Clone, const M: usize> IntoNDArray<T, Rank1<M>> for [T; M] {
-    fn into_tensor(self) -> NDArray<T, Rank1<M>> {
+impl<T: Clone + Div> IntoNDArray<T, Rank0> for T {
+    fn into_array(self) -> NDArray<T, Rank0> {
+        NDArray {
+            data: [self].to_vec(),
+            shape: ()
+        }
+    }
+}
+
+impl<T: Copy + Div, const M: usize> IntoNDArray<T, Rank1<M>> for [T; M] {
+    fn into_array(self) -> NDArray<T, Rank1<M>> {
         let shape: Rank1<M> = (Const::<M>, );
         NDArray {
             data: self.to_vec(),
@@ -37,6 +46,18 @@ impl<T: Clone, const M: usize> IntoNDArray<T, Rank1<M>> for [T; M] {
         }
     }
 }
+
+impl<T: Copy + Div, const M: usize, const N: usize> IntoNDArray<T, Rank2<M, N>> for [[T; N]; M] {
+    fn into_array(self) -> NDArray<T, Rank2<M, N>> {
+        let shape = (Const::<M>, Const::<N>);
+        let data = self.iter().flat_map(|v| v.iter().copied()).collect();
+        NDArray {
+            data,
+            shape
+        }
+    }
+}
+
 
 pub fn unary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, op: fn(T) -> T) -> NDArray<T, S> {
     let mut res_data: Vec<T> = Vec::with_capacity(a.shape.n_elements());
