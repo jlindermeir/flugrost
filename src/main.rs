@@ -1,18 +1,10 @@
-use crate::ndarray::{NDArray};
+use crate::ndarray::{IntoNDArray, unary_op};
 
 mod ndarray;
 
 fn main() {
-    let arr1 = NDArray {
-        data: Vec::from([0, 1, 2, 3, 4, 5]),
-        shape: (2, 3)
-    };
-    let arr2 = NDArray {
-        data: Vec::from([0, 1, 2, 3, 4, 5]),
-        shape: (2, 3)
-    };
-    let sum = &arr1 - &arr2;
-    println!("{}", sum[[1, 2]]);
+    let arr1 = [1., 2., 3.].into_tensor();
+    let arr2= [3, 4, 4, 5].into_tensor();
     let neg = -&arr1;
-    println!("{}", neg[[1, 2]]);
+    print!("{}", neg[[0]]);
 }

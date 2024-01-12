@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Display};
-use std::ops::{Add, Index, Neg, Sub};
+use std::ops::{Add, AddAssign, Index, Mul, Neg, Sub};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Const<const N: usize>;
@@ -14,12 +14,6 @@ impl<const N: usize> Dim for Const<N> {
     }
 }
 
-impl Dim for usize {
-    fn size(&self) -> usize {
-        *self
-    }
-}
-
 trait Shape: Debug + Copy {
     const N_DIMS: usize;
     type Indices: IntoIterator<Item = usize> + Index<usize, Output = usize> + Debug + Copy;
@@ -30,7 +24,11 @@ trait Shape: Debug + Copy {
     }
 }
 
-impl Shape for () {
+pub type Rank0 = ();
+pub type Rank1<const M: usize> = (Const<M>,);
+pub type Rank2<const M: usize, const N: usize> = (Const<M>, Const<N>);
+
+impl Shape for Rank0 {
     const N_DIMS: usize = 0;
     type Indices = [usize; 0];
     fn shape(&self) -> [usize; 0] {
@@ -41,7 +39,7 @@ impl Shape for () {
     }
 }
 
-impl<D1: Dim> Shape for (D1, ) {
+impl<const M: usize> Shape for Rank1<M> {
     const N_DIMS: usize = 1;
     type Indices = [usize; 1];
     fn shape(&self) -> [usize; 1] {
@@ -52,7 +50,7 @@ impl<D1: Dim> Shape for (D1, ) {
     }
 }
 
-impl<D1: Dim, D2: Dim> Shape for (D1, D2) {
+impl<const M: usize, const N: usize> Shape for Rank2<M, N> {
     const N_DIMS: usize = 2;
     type Indices = [usize; 2];
     fn shape(&self) -> [usize; 2] {
@@ -86,7 +84,21 @@ impl<T: Copy, S: Shape> Index<S::Indices> for NDArray<T, S> {
     }
 }
 
-fn unary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, op: fn(T) -> T) -> NDArray<T, S> {
+pub trait IntoNDArray<T, S: Shape> {
+    fn into_tensor(self) -> NDArray<T, S>;
+}
+
+impl<T: Clone, const M: usize> IntoNDArray<T, Rank1<M>> for [T; M] {
+    fn into_tensor(self) -> NDArray<T, Rank1<M>> {
+        let shape: Rank1<M> = (Const::<M>, );
+        NDArray {
+            data: self.to_vec(),
+            shape
+        }
+    }
+}
+
+pub fn unary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, op: fn(T) -> T) -> NDArray<T, S> {
     let mut res_data: Vec<T> = Vec::with_capacity(a.shape.n_elements());
 
     for i in 0..a.shape.n_elements() {
@@ -135,3 +147,27 @@ impl<T: Copy + Neg<Output = T>, S: Shape> Neg for &NDArray<T, S> {
         unary_op(&self, |a| -a)
     }
 }
+
+// pub fn mat_mul<T, M: Dim, const K: usize, N: Dim>(
+//     lhs: &NDArray<T, (M, Const<K>)>,
+//     rhs: &NDArray<T, (Const<K>, N)>
+// ) -> NDArray<T, (M, N)>
+// where T: Copy + AddAssign + Mul<Output = T> {
+//     let result_shape: (M, N) = (Const::<M>, Const::<N>);
+//     let result_array = Vec::with_capacity(result_shape.n_elements());
+//
+//     for i in 0..result_shape.shape()[0] {
+//         for j in 0..result_shape.shape()[1] {
+//             let mut element: T;
+//             for k in 0..lhs.shape.shape()[1] {
+//                 element += lhs[[i, k]] * rhs[[k, j]]
+//             }
+//             result_array[index_to_i(&result_shape, &result_shape.strides(), [i, j])] = element;
+//         }
+//     }
+//
+//     NDArray {
+//         data: result_array,
+//         shape: result_shape
+//     }
+// }
