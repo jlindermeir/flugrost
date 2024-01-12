@@ -1,4 +1,4 @@
-use crate::ndarray::{add, NDArray};
+use crate::ndarray::{NDArray};
 
 mod ndarray;
 
@@ -11,6 +11,6 @@ fn main() {
         data: Vec::from([0, 1, 2, 3, 4, 5]),
         shape: (2, 3)
     };
-    let sum = add(&arr1, &arr2);
+    let sum = arr1 - arr2;
     println!("{}", sum[[1, 2]])
 }
