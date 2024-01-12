@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Display};
-use std::ops::Index;
+use std::ops::{Add, Index};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Const<const N: usize>;
@@ -65,7 +65,7 @@ impl<D1: Dim, D2: Dim> Shape for (D1, D2) {
 
 pub struct NDArray<T, S: Shape> {
     pub shape: S,
-    pub _data: Vec<T>
+    pub data: Vec<T>
 }
 
 fn index_to_i<S: Shape>(shape: &S, strides: &S::Indices, index: S::Indices) -> usize {
@@ -78,10 +78,23 @@ fn index_to_i<S: Shape>(shape: &S, strides: &S::Indices, index: S::Indices) -> u
     strides.into_iter().zip(index).map(|(a, b)| a * b).sum()
 }
 
-impl<T, S: Shape> Index<S::Indices> for NDArray<T, S> {
+impl<T: Copy, S: Shape> Index<S::Indices> for NDArray<T, S> {
     type Output = T;
     fn index(&self, index: S::Indices) -> &Self::Output {
         let idx: usize = index_to_i(&self.shape, &self.shape.strides(), index);
-        &self._data[idx]
+        &self.data[idx]
+    }
+}
+
+pub fn add<T: Copy + Add<Output = T>, S: Shape>(a: &NDArray<T, S>, b: &NDArray<T, S>) -> NDArray<T, S> {
+    let mut res_data: Vec<T> = Vec::with_capacity(a.shape.n_elements());
+
+    for i in 0..a.shape.n_elements() {
+        res_data.push(a.data[i] + b.data[i])
+    }
+
+    NDArray {
+        data: res_data,
+        shape: a.shape
     }
 }
