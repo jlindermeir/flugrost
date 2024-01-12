@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Display};
-use std::ops::{Add, Index, Sub};
+use std::ops::{Add, Index, Neg, Sub};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Const<const N: usize>;
@@ -86,6 +86,19 @@ impl<T: Copy, S: Shape> Index<S::Indices> for NDArray<T, S> {
     }
 }
 
+fn unary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, op: fn(T) -> T) -> NDArray<T, S> {
+    let mut res_data: Vec<T> = Vec::with_capacity(a.shape.n_elements());
+
+    for i in 0..a.shape.n_elements() {
+        res_data.push(op(a.data[i]))
+    }
+
+    NDArray {
+        data: res_data,
+        shape: a.shape
+    }
+}
+
 fn binary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, b: &NDArray<T, S>, op: fn(T, T) -> T) -> NDArray<T, S> {
     let mut res_data: Vec<T> = Vec::with_capacity(a.shape.n_elements());
 
@@ -99,7 +112,7 @@ fn binary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, b: &NDArray<T, S>, op: fn(T, 
     }
 }
 
-impl<T: Copy + Add<Output = T>, S: Shape> Add for NDArray<T, S> {
+impl<T: Copy + Add<Output = T>, S: Shape> Add for &NDArray<T, S> {
     type Output = NDArray<T, S>;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -107,10 +120,18 @@ impl<T: Copy + Add<Output = T>, S: Shape> Add for NDArray<T, S> {
     }
 }
 
-impl<T: Copy + Sub<Output = T>, S: Shape> Sub for NDArray<T, S> {
+impl<T: Copy + Sub<Output = T>, S: Shape> Sub for &NDArray<T, S> {
     type Output = NDArray<T, S>;
 
     fn sub(self, rhs: Self) -> Self::Output {
         binary_op(&self, &rhs, |a, b| a - b)
+    }
+}
+
+impl<T: Copy + Neg<Output = T>, S: Shape> Neg for &NDArray<T, S> {
+    type Output = NDArray<T, S>;
+
+    fn neg(self) -> Self::Output {
+        unary_op(&self, |a| -a)
     }
 }

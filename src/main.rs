@@ -11,6 +11,8 @@ fn main() {
         data: Vec::from([0, 1, 2, 3, 4, 5]),
         shape: (2, 3)
     };
-    let sum = arr1 - arr2;
-    println!("{}", sum[[1, 2]])
+    let sum = &arr1 - &arr2;
+    println!("{}", sum[[1, 2]]);
+    let neg = -&arr1;
+    println!("{}", neg[[1, 2]]);
 }
