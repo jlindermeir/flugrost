@@ -1,4 +1,4 @@
-use crate::ndarray::{IntoNDArray, unary_op};
+use crate::ndarray::ndarray::IntoNDArray;
 
 mod ndarray;
 
