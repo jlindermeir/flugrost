@@ -1,4 +1,5 @@
-use crate::ndarray::ndarray::{IntoNDArray, mat_mul};
+use crate::ndarray::ndarray::{IntoNDArray};
+use crate::ndarray::ops::mat_mul;
 
 mod ndarray;
 
