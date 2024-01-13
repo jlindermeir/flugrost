@@ -115,7 +115,6 @@ pub fn mat_mul<T, const M: usize, const K: usize, const N: usize>(
 ) -> NDArray<T, Rank2<M, N>>
 where T: Copy + std::iter::Sum + Mul<Output = T> {
     let result_shape = (Const::<M>, Const::<N>);
-    let result_n_elements = M * N;
     let mut result_array = Vec::new();
 
     for i in 0..M {
