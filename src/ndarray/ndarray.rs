@@ -1,9 +1,53 @@
+use std::fmt::{Display, Formatter};
 use std::ops::{Add, Div, Index, Mul, Neg, Sub};
 use crate::ndarray::shape::{Const, Rank0, Rank1, Rank2, Shape};
 
 pub struct NDArray<T, S: Shape> {
     pub shape: S,
     pub data: Vec<T>
+}
+
+impl <T: Display + Copy> Display for NDArray<T, Rank0> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}\n", self.data[0])
+    }
+}
+
+impl<T: Display + Copy, const M: usize> Display for NDArray<T, Rank1<M>> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut s = String::new();
+        s.push_str("[");
+        for i in 0..M {
+            s.push_str(&format!("{}", self[[i]]));
+            if i != M - 1 {
+                s.push_str(", ");
+            }
+        }
+        s.push_str("]\n");
+        write!(f, "{}", s)
+    }
+}
+
+impl<T: Display + Copy, const M: usize, const N: usize> Display for NDArray<T, Rank2<M, N>> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut s = String::new();
+        s.push_str("[");
+        for i in 0..M {
+            s.push_str("[");
+            for j in 0..N {
+                s.push_str(&format!("{}", self[[i, j]]));
+                if j != N - 1 {
+                    s.push_str(", ");
+                }
+            }
+            s.push_str("]");
+            if i != M - 1 {
+                s.push_str(",\n");
+            }
+        }
+        s.push_str("]\n");
+        write!(f, "{}", s)
+    }
 }
 
 fn index_to_i<S: Shape>(shape: &S, strides: &S::Indices, index: S::Indices) -> usize {

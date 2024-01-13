@@ -13,5 +13,7 @@ fn main() {
         [0, 0]
     ].into_array();
     let prod = mat_mul(&arr1, &arr2);
-    print!("{}", prod[[0, 1]]);
+    print!("{}", prod);
+    let arr3 = [0, 1, 3].into_array();
+    println!("{}", arr3)
 }
