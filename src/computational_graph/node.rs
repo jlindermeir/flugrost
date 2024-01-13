@@ -1,9 +1,8 @@
 use std::ops::Add;
-use std::process::Output;
 
 pub trait Node {
-    type OUTPUT;
-    fn output(&self) -> Self::OUTPUT;
+    type Output;
+    fn output(&self) -> Self::Output;
 }
 
 pub struct Constant<T> {
@@ -11,20 +10,24 @@ pub struct Constant<T> {
 }
 
 impl<T: Copy> Node for Constant<T> {
-    type OUTPUT = T;
-    fn output(&self) -> Self::OUTPUT {
+    type Output = T;
+    fn output(&self) -> Self::Output {
         self.value
     }
 }
 
-pub struct Sum<'a, T, N: Node<OUTPUT = T>> {
-    pub lhs: &'a N,
-    pub rhs: &'a N
+pub struct BinaryOp<'a, T, N>
+where N: Node<Output = T>
+{
+    pub op: fn(&T, &T) -> T,
+    pub rhs: &'a N,
+    pub lhs: &'a N
 }
 
-impl <'a, T: Add<Output = T>, N: Node<OUTPUT = T>> Node for Sum<'a, T, N> {
-    type OUTPUT = T;
-    fn output(&self) -> Self::OUTPUT {
-        self.lhs.output() + self.rhs.output()
+impl<'a, T: Add<Output = T>, N: Node<Output = T>> Node for BinaryOp<'a, T, N> {
+    type Output = T;
+
+    fn output(&self) -> Self::Output {
+        (self.op)(&self.lhs.output(), &self.rhs.output())
     }
 }
