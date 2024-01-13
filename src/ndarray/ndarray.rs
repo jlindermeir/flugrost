@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Index, Neg, Sub};
+use std::ops::{Add, Div, Index, Mul, Neg, Sub};
 use crate::ndarray::shape::{Const, Rank0, Rank1, Rank2, Shape};
 
 pub struct NDArray<T, S: Shape> {
@@ -109,26 +109,24 @@ impl<T: Copy + Neg<Output = T>, S: Shape> Neg for &NDArray<T, S> {
     }
 }
 
-// pub fn mat_mul<T, M: Dim, const K: usize, N: Dim>(
-//     lhs: &NDArray<T, (M, Const<K>)>,
-//     rhs: &NDArray<T, (Const<K>, N)>
-// ) -> NDArray<T, (M, N)>
-// where T: Copy + AddAssign + Mul<Output = T> {
-//     let result_shape: (M, N) = (Const::<M>, Const::<N>);
-//     let result_array = Vec::with_capacity(result_shape.n_elements());
-//
-//     for i in 0..result_shape.shape()[0] {
-//         for j in 0..result_shape.shape()[1] {
-//             let mut element: T;
-//             for k in 0..lhs.shape.shape()[1] {
-//                 element += lhs[[i, k]] * rhs[[k, j]]
-//             }
-//             result_array[index_to_i(&result_shape, &result_shape.strides(), [i, j])] = element;
-//         }
-//     }
-//
-//     NDArray {
-//         data: result_array,
-//         shape: result_shape
-//     }
-// }
+pub fn mat_mul<T, const M: usize, const K: usize, const N: usize>(
+    lhs: &NDArray<T, Rank2<M, K>>,
+    rhs: &NDArray<T, Rank2<K, N>>
+) -> NDArray<T, Rank2<M, N>>
+where T: Copy + std::iter::Sum + Mul<Output = T> {
+    let result_shape = (Const::<M>, Const::<N>);
+    let result_n_elements = M * N;
+    let mut result_array = Vec::new();
+
+    for i in 0..M {
+        for j in 0..N {
+            let element = (0..K).map(|k| lhs[[i, k]] * rhs[[k, j]]).sum();
+            result_array.push(element);
+        }
+    }
+
+    NDArray {
+        data: result_array,
+        shape: result_shape
+    }
+}

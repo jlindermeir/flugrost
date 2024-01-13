@@ -4,7 +4,7 @@ use std::ops::Index;
 #[derive(Debug, Copy, Clone)]
 pub struct Const<const N: usize>;
 
-trait Dim: Debug + Copy {
+pub trait Dim: Debug + Copy {
     fn size(&self) -> usize;
 }
 
