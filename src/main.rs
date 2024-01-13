@@ -2,6 +2,7 @@ use crate::ndarray::ndarray::{IntoNDArray};
 use crate::ndarray::ops::mat_mul;
 
 mod ndarray;
+mod computational_graph;
 
 fn main() {
     let arr1 = [
