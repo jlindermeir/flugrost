@@ -2,18 +2,29 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 use crate::ndarray::ndarray::{DType, NDArray};
 use crate::ndarray::shape::{Const, Rank2, Shape};
 
-pub fn unary_op<T: DType, S: Shape>(a: &NDArray<T, S>, op: fn(T) -> T) -> NDArray<T, S> {
-    let mut res_data: Vec<T> = Vec::with_capacity(a.shape.n_elements());
+macro_rules! implement_unary_op {
+    ($trait: ident, $method:ident, $op:tt) => {
+        impl<T: DType, S: Shape> $trait for &NDArray<T, S> {
+            type Output = NDArray<T, S>;
 
-    for i in 0..a.shape.n_elements() {
-        res_data.push(op(a.data[i]))
-    }
+            fn $method(self) -> Self::Output {
+                let n_elements = self.shape.n_elements();
+                let mut res_data: Vec<T> = Vec::with_capacity(n_elements);
 
-    NDArray {
-        data: res_data,
-        shape: a.shape
-    }
+                for i in 0..n_elements {
+                    res_data.push($op self.data[i])
+                }
+
+                NDArray {
+                    data: res_data,
+                    shape: self.shape
+                }
+            }
+        }
+    };
 }
+
+implement_unary_op!(Neg, neg, -);
 
 macro_rules! implement_binary_op {
     ($trait:ident, $method:ident, $op:tt) => {
@@ -40,14 +51,6 @@ implement_binary_op!(Add, add, +);
 implement_binary_op!(Sub, sub, -);
 implement_binary_op!(Mul, mul, *);
 implement_binary_op!(Div, div, /);
-
-impl<T: DType, S: Shape> Neg for &NDArray<T, S> {
-    type Output = NDArray<T, S>;
-
-    fn neg(self) -> Self::Output {
-        unary_op(&self, |a| -a)
-    }
-}
 
 pub fn mat_mul<T: DType, const M: usize, const K: usize, const N: usize>(
     lhs: &NDArray<T, Rank2<M, K>>,
