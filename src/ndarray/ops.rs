@@ -1,8 +1,8 @@
 use std::ops::{Add, Mul, Neg, Sub};
-use crate::ndarray::ndarray::NDArray;
+use crate::ndarray::ndarray::{DType, NDArray};
 use crate::ndarray::shape::{Const, Rank2, Shape};
 
-pub fn unary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, op: fn(T) -> T) -> NDArray<T, S> {
+pub fn unary_op<T: DType, S: Shape>(a: &NDArray<T, S>, op: fn(T) -> T) -> NDArray<T, S> {
     let mut res_data: Vec<T> = Vec::with_capacity(a.shape.n_elements());
 
     for i in 0..a.shape.n_elements() {
@@ -15,7 +15,7 @@ pub fn unary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, op: fn(T) -> T) -> NDArray
     }
 }
 
-fn binary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, b: &NDArray<T, S>, op: fn(T, T) -> T) -> NDArray<T, S> {
+fn binary_op<T: DType, S: Shape>(a: &NDArray<T, S>, b: &NDArray<T, S>, op: fn(T, T) -> T) -> NDArray<T, S> {
     let mut res_data: Vec<T> = Vec::with_capacity(a.shape.n_elements());
 
     for i in 0..a.shape.n_elements() {
@@ -28,7 +28,7 @@ fn binary_op<T: Copy, S: Shape>(a: &NDArray<T, S>, b: &NDArray<T, S>, op: fn(T, 
     }
 }
 
-impl<T: Copy + Add<Output = T>, S: Shape> Add for &NDArray<T, S> {
+impl<T: DType, S: Shape> Add for &NDArray<T, S> {
     type Output = NDArray<T, S>;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -36,7 +36,7 @@ impl<T: Copy + Add<Output = T>, S: Shape> Add for &NDArray<T, S> {
     }
 }
 
-impl<T: Copy + Sub<Output = T>, S: Shape> Sub for &NDArray<T, S> {
+impl<T: DType, S: Shape> Sub for &NDArray<T, S> {
     type Output = NDArray<T, S>;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -44,7 +44,7 @@ impl<T: Copy + Sub<Output = T>, S: Shape> Sub for &NDArray<T, S> {
     }
 }
 
-impl<T: Copy + Neg<Output = T>, S: Shape> Neg for &NDArray<T, S> {
+impl<T: DType, S: Shape> Neg for &NDArray<T, S> {
     type Output = NDArray<T, S>;
 
     fn neg(self) -> Self::Output {
@@ -52,7 +52,7 @@ impl<T: Copy + Neg<Output = T>, S: Shape> Neg for &NDArray<T, S> {
     }
 }
 
-impl<T: Copy + Mul<Output = T>, S: Shape> Mul for &NDArray<T, S> {
+impl<T: DType, S: Shape> Mul for &NDArray<T, S> {
     type Output = NDArray<T, S>;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -60,7 +60,7 @@ impl<T: Copy + Mul<Output = T>, S: Shape> Mul for &NDArray<T, S> {
     }
 }
 
-pub fn mat_mul<T, const M: usize, const K: usize, const N: usize>(
+pub fn mat_mul<T: DType, const M: usize, const K: usize, const N: usize>(
     lhs: &NDArray<T, Rank2<M, K>>,
     rhs: &NDArray<T, Rank2<K, N>>
 ) -> NDArray<T, Rank2<M, N>>

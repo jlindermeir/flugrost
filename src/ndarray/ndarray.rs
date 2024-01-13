@@ -1,19 +1,29 @@
 use std::fmt::{Display, Formatter};
-use std::ops::{Div, Index};
+use std::ops::{Add, Div, Index, Mul, Neg, Sub};
 use crate::ndarray::shape::{Const, Rank0, Rank1, Rank2, Shape};
 
-pub struct NDArray<T, S: Shape> {
+pub trait DType: Copy
+    + Add<Output = Self>
+    + Sub<Output = Self>
+    + Mul<Output = Self>
+    + Div<Output = Self>
+    + Neg<Output = Self>
+    + Display {}
+impl DType for i32 {}
+impl DType for f32 {}
+
+pub struct NDArray<T: DType, S: Shape> {
     pub shape: S,
     pub data: Vec<T>
 }
 
-impl <T: Display + Copy> Display for NDArray<T, Rank0> {
+impl <T: DType> Display for NDArray<T, Rank0> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}\n", self.data[0])
     }
 }
 
-impl<T: Display + Copy, const M: usize> Display for NDArray<T, Rank1<M>> {
+impl<T: DType, const M: usize> Display for NDArray<T, Rank1<M>> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut s = String::new();
         s.push_str("[");
@@ -28,7 +38,7 @@ impl<T: Display + Copy, const M: usize> Display for NDArray<T, Rank1<M>> {
     }
 }
 
-impl<T: Display + Copy, const M: usize, const N: usize> Display for NDArray<T, Rank2<M, N>> {
+impl<T: DType, const M: usize, const N: usize> Display for NDArray<T, Rank2<M, N>> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut s = String::new();
         s.push_str("[");
@@ -60,7 +70,7 @@ fn index_to_i<S: Shape>(shape: &S, strides: &S::Indices, index: S::Indices) -> u
     strides.into_iter().zip(index).map(|(a, b)| a * b).sum()
 }
 
-impl<T: Copy, S: Shape> Index<S::Indices> for NDArray<T, S> {
+impl<T: DType, S: Shape> Index<S::Indices> for NDArray<T, S> {
     type Output = T;
     fn index(&self, index: S::Indices) -> &Self::Output {
         let idx: usize = index_to_i(&self.shape, &self.shape.strides(), index);
@@ -68,11 +78,11 @@ impl<T: Copy, S: Shape> Index<S::Indices> for NDArray<T, S> {
     }
 }
 
-pub trait IntoNDArray<T, S: Shape> {
+pub trait IntoNDArray<T: DType, S: Shape> {
     fn into_array(self) -> NDArray<T, S>;
 }
 
-impl<T: Clone + Div> IntoNDArray<T, Rank0> for T {
+impl<T: DType> IntoNDArray<T, Rank0> for T {
     fn into_array(self) -> NDArray<T, Rank0> {
         NDArray {
             data: [self].to_vec(),
@@ -81,7 +91,7 @@ impl<T: Clone + Div> IntoNDArray<T, Rank0> for T {
     }
 }
 
-impl<T: Copy + Div, const M: usize> IntoNDArray<T, Rank1<M>> for [T; M] {
+impl<T:DType, const M: usize> IntoNDArray<T, Rank1<M>> for [T; M] {
     fn into_array(self) -> NDArray<T, Rank1<M>> {
         let shape: Rank1<M> = (Const::<M>, );
         NDArray {
@@ -91,7 +101,7 @@ impl<T: Copy + Div, const M: usize> IntoNDArray<T, Rank1<M>> for [T; M] {
     }
 }
 
-impl<T: Copy + Div, const M: usize, const N: usize> IntoNDArray<T, Rank2<M, N>> for [[T; N]; M] {
+impl<T: DType, const M: usize, const N: usize> IntoNDArray<T, Rank2<M, N>> for [[T; N]; M] {
     fn into_array(self) -> NDArray<T, Rank2<M, N>> {
         let shape = (Const::<M>, Const::<N>);
         let data = self.iter().flat_map(|v| v.iter().copied()).collect();
