@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Neg, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 use crate::ndarray::ndarray::{DType, NDArray};
 use crate::ndarray::shape::{Const, Rank2, Shape};
 
@@ -15,48 +15,37 @@ pub fn unary_op<T: DType, S: Shape>(a: &NDArray<T, S>, op: fn(T) -> T) -> NDArra
     }
 }
 
-fn binary_op<T: DType, S: Shape>(a: &NDArray<T, S>, b: &NDArray<T, S>, op: fn(T, T) -> T) -> NDArray<T, S> {
-    let mut res_data: Vec<T> = Vec::with_capacity(a.shape.n_elements());
+macro_rules! implement_binary_op {
+    ($trait:ident, $method:ident, $op:tt) => {
+        impl<T: DType, S: Shape> $trait for &NDArray<T, S> {
+            type Output = NDArray<T, S>;
 
-    for i in 0..a.shape.n_elements() {
-        res_data.push(op(a.data[i], b.data[i]))
-    }
+            fn $method(self, rhs: &NDArray<T, S>) -> Self::Output {
+                let mut res_data: Vec<T> = Vec::with_capacity(self.shape.n_elements());
 
-    NDArray {
-        data: res_data,
-        shape: a.shape
-    }
+                for i in 0..self.shape.n_elements() {
+                    res_data.push(self.data[i] $op rhs.data[i]);
+                }
+
+                NDArray {
+                    data: res_data,
+                    shape: self.shape
+                }
+            }
+        }
+    };
 }
 
-impl<T: DType, S: Shape> Add for &NDArray<T, S> {
-    type Output = NDArray<T, S>;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        binary_op(&self, &rhs, |a, b| a + b)
-    }
-}
-
-impl<T: DType, S: Shape> Sub for &NDArray<T, S> {
-    type Output = NDArray<T, S>;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        binary_op(&self, &rhs, |a, b| a - b)
-    }
-}
+implement_binary_op!(Add, add, +);
+implement_binary_op!(Sub, sub, -);
+implement_binary_op!(Mul, mul, *);
+implement_binary_op!(Div, div, /);
 
 impl<T: DType, S: Shape> Neg for &NDArray<T, S> {
     type Output = NDArray<T, S>;
 
     fn neg(self) -> Self::Output {
         unary_op(&self, |a| -a)
-    }
-}
-
-impl<T: DType, S: Shape> Mul for &NDArray<T, S> {
-    type Output = NDArray<T, S>;
-
-    fn mul(self, rhs: Self) -> Self::Output {
-        binary_op(&self, &rhs, |a, b| a * b)
     }
 }
 
