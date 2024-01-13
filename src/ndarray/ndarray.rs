@@ -109,6 +109,14 @@ impl<T: Copy + Neg<Output = T>, S: Shape> Neg for &NDArray<T, S> {
     }
 }
 
+impl<T: Copy + Mul<Output = T>, S: Shape> Mul for &NDArray<T, S> {
+    type Output = NDArray<T, S>;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        binary_op(&self, &rhs, |a, b| a * b)
+    }
+}
+
 pub fn mat_mul<T, const M: usize, const K: usize, const N: usize>(
     lhs: &NDArray<T, Rank2<M, K>>,
     rhs: &NDArray<T, Rank2<K, N>>
