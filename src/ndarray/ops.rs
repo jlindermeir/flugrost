@@ -28,6 +28,7 @@ implement_unary_op!(Neg, neg, -);
 
 macro_rules! implement_binary_op {
     ($trait:ident, $method:ident, $op:tt) => {
+        /// Implementation for array op array
         impl<T: DType, S: Shape> $trait for &NDArray<T, S> {
             type Output = NDArray<T, S>;
 
@@ -36,6 +37,24 @@ macro_rules! implement_binary_op {
 
                 for i in 0..self.shape.n_elements() {
                     res_data.push(self.data[i] $op rhs.data[i]);
+                }
+
+                NDArray {
+                    data: res_data,
+                    shape: self.shape
+                }
+            }
+        }
+
+        /// Implementation for array op scalar
+        impl<T: DType, S: Shape> $trait<T> for &NDArray<T, S> {
+            type Output = NDArray<T, S>;
+
+            fn $method(self, rhs: T) -> Self::Output {
+                let mut res_data: Vec<T> = Vec::with_capacity(self.shape.n_elements());
+
+                for i in 0..self.shape.n_elements() {
+                    res_data.push(self.data[i] $op rhs);
                 }
 
                 NDArray {
