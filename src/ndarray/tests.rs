@@ -1,4 +1,4 @@
-use crate::ndarray::ndarray::IntoNDArray;
+use crate::ndarray::ndarray::{IntoNDArray, mat_mul};
 
 #[test]
 fn test_rank0() {
@@ -53,4 +53,22 @@ fn test_multiplication() {
     assert_eq!(prod[[0]], 4);
     assert_eq!(prod[[1]], 10);
     assert_eq!(prod[[2]], 18);
+}
+
+#[test]
+fn test_mat_mul() {
+    let arr1 = [
+        [0, 1, 2],
+        [3, 4, 5]
+    ].into_array();
+    let arr2 = [
+        [1, 0],
+        [0, 1],
+        [0, 0]
+    ].into_array();
+    let prod = mat_mul(&arr1, &arr2);
+    assert_eq!(prod[[0, 0]], 0);
+    assert_eq!(prod[[0, 1]], 1);
+    assert_eq!(prod[[1, 0]], 3);
+    assert_eq!(prod[[1, 1]], 4);
 }
