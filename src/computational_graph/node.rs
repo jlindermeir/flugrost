@@ -1,4 +1,3 @@
-use log::{debug, info};
 use crate::ndarray::ndarray::{DType, NDArray};
 use crate::ndarray::shape::Shape;
 
