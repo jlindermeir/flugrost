@@ -1,17 +1,23 @@
-use crate::computational_graph::node::{BinaryElementwiseOp, Node};
+use std::ops::Add;
+use crate::computational_graph::node::{BinaryElementwiseOp, Node, NodeOutput};
 use crate::ndarray::ndarray::{DType, NDArray};
 use crate::ndarray::shape::Shape;
 
-pub fn add<T, S, L, R>(lhs: L, rhs: R) -> BinaryElementwiseOp<S, T, L, R>
-where T: DType,
-      S: Shape,
-      L: Node<Output = NDArray<T, S>>,
-      R: Node<Output = NDArray<T, S>>,
+impl<S, T, L, R> Add<Node<R>> for Node<L>
+    where S: Shape,
+          T: DType,
+          L: NodeOutput<Output = NDArray<T, S>>,
+          R: NodeOutput<Output = NDArray<T, S>>
 {
-    BinaryElementwiseOp {
-        lhs,
-        rhs,
-        op: |a, b| a + b,
-        result: None
+    type Output = Node<BinaryElementwiseOp<S, T, L, R>>;
+
+    fn add(self, rhs: Node<R>) -> Self::Output {
+        let output = BinaryElementwiseOp {
+            lhs: self.0,
+            rhs: rhs.0,
+            op: |a, b| a + b,
+            result: None
+        };
+        Node(output)
     }
 }

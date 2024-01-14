@@ -1,3 +1,3 @@
-mod node;
+pub mod node;
 mod tests;
-mod ops;
+pub mod ops;
