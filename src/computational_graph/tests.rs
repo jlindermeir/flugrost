@@ -1,17 +1,20 @@
-use crate::computational_graph::node::{BinaryOp, Constant, Node};
+use crate::computational_graph::node::{BinaryElementwiseOp, Constant, Node};
+use crate::ndarray::ndarray::IntoNDArray;
 
 #[test]
 fn test_simple_addition() {
     let a = Constant {
-        value: 1
+        array: [1, 2].into_array()
     };
     let b = Constant {
-        value: 2
+        array: [3, 4].into_array()
     };
-    let sum = BinaryOp {
+    let mut sum = BinaryElementwiseOp {
+        lhs: a,
+        rhs: b,
         op: |a, b| a + b,
-        lhs: &a,
-        rhs: &b
+        result: None
     };
-    assert_eq!(sum.output(), 3)
+    assert_eq!(sum.output()[[0]], 4);
+    assert_eq!(sum.output()[[1]], 6);
 }
