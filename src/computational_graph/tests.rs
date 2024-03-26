@@ -70,3 +70,14 @@ fn test_multiplication() {
     assert_eq!(prod.output()[[1]], 8);
     assert_eq!(prod.output()[[2]], 15);
 }
+
+#[test]
+fn test_scalar_multiplication() {
+    let a = Node(Constant {
+        array: [1, 2, 3].into_array()
+    });
+    let prod = a * 2;
+    assert_eq!(prod.output()[[0]], 2);
+    assert_eq!(prod.output()[[1]], 4);
+    assert_eq!(prod.output()[[2]], 6);
+}

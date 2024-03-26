@@ -1,5 +1,5 @@
 use std::ops::{Add, Sub, Neg, Mul};
-use crate::computational_graph::node::{Node, NodeOutput};
+use crate::computational_graph::node::{Constant, Node, NodeOutput};
 use crate::ndarray::ndarray::{DType, NDArray};
 use crate::ndarray::shape::Shape;
 
@@ -134,6 +134,44 @@ impl<S, T, L, R> Mul<Node<R>> for Node<L>
         let output = MulNode {
             lhs: self.0,
             rhs: rhs.0,
+        };
+        Node(output)
+    }
+}
+
+
+pub struct ScalarMulNode<S, T, N>
+    where S: Shape,
+          T: DType,
+          N: NodeOutput<Output = NDArray<T, S>>,
+{
+    pub node: N,
+    pub scalar: T,
+}
+
+impl<S, T, N> NodeOutput for ScalarMulNode<S, T, N>
+    where S: Shape,
+          T: DType,
+          N: NodeOutput<Output = NDArray<T, S>>
+{
+    type Output = NDArray<T, S>;
+
+    fn output(&self) -> Self::Output {
+        &self.node.output() * self.scalar
+    }
+}
+
+impl<S, T, N> Mul<T> for Node<N>
+    where S: Shape,
+          T: DType,
+          N: NodeOutput<Output = NDArray<T, S>>
+{
+    type Output = Node<ScalarMulNode<S, T, N>>;
+
+    fn mul(self, scalar: T) -> Self::Output {
+        let output = ScalarMulNode {
+            node: self.0,
+            scalar,
         };
         Node(output)
     }
