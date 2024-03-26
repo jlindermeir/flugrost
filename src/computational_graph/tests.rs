@@ -56,3 +56,17 @@ fn test_subtraction() {
     assert_eq!(diff.output()[[1]], -2);
     assert_eq!(diff.output()[[2]], -2);
 }
+
+#[test]
+fn test_multiplication() {
+    let a = Node(Constant {
+        array: [1, 2, 3].into_array()
+    });
+    let b = Node(Constant {
+        array: [3, 4, 5].into_array()
+    });
+    let prod = a * b;
+    assert_eq!(prod.output()[[0]], 3);
+    assert_eq!(prod.output()[[1]], 8);
+    assert_eq!(prod.output()[[2]], 15);
+}

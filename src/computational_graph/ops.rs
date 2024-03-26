@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub, Neg};
+use std::ops::{Add, Sub, Neg, Mul};
 use crate::computational_graph::node::{Node, NodeOutput};
 use crate::ndarray::ndarray::{DType, NDArray};
 use crate::ndarray::shape::Shape;
@@ -94,6 +94,46 @@ impl <S, T, L, R> Sub<Node<R>> for Node<L>
             rhs: NegNode {
                 node: rhs.0,
             },
+        };
+        Node(output)
+    }
+}
+
+pub struct MulNode<S, T, L, R>
+    where S: Shape,
+          T: DType,
+          L: NodeOutput<Output = NDArray<T, S>>,
+          R: NodeOutput<Output = NDArray<T, S>>,
+{
+    pub lhs: L,
+    pub rhs: R,
+}
+
+impl<S, T, L, R> NodeOutput for MulNode<S, T, L, R>
+    where S: Shape,
+          T: DType,
+          L: NodeOutput<Output = NDArray<T, S>>,
+          R: NodeOutput<Output = NDArray<T, S>>
+{
+    type Output = NDArray<T, S>;
+
+    fn output(&self) -> Self::Output {
+        &self.lhs.output() * &self.rhs.output()
+    }
+}
+
+impl<S, T, L, R> Mul<Node<R>> for Node<L>
+    where S: Shape,
+          T: DType,
+          L: NodeOutput<Output = NDArray<T, S>>,
+          R: NodeOutput<Output = NDArray<T, S>>
+{
+    type Output = Node<MulNode<S, T, L, R>>;
+
+    fn mul(self, rhs: Node<R>) -> Self::Output {
+        let output = MulNode {
+            lhs: self.0,
+            rhs: rhs.0,
         };
         Node(output)
     }
