@@ -78,6 +78,15 @@ impl<T: DType, S: Shape> Index<S::Indices> for NDArray<T, S> {
     }
 }
 
+impl<T: DType, S: Shape> Clone for NDArray<T, S> {
+    fn clone(&self) -> Self {
+        NDArray {
+            shape: self.shape.clone(),
+            data: self.data.clone()
+        }
+    }
+}
+
 pub trait IntoNDArray<T: DType, S: Shape> {
     fn into_array(self) -> NDArray<T, S>;
 }

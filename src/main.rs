@@ -11,7 +11,7 @@ fn main() {
     let b = Node(Constant {
         array: [3, 4, 5].into_array()
     });
-    let mut sum = a + b;
+    let sum = a + b;
     assert_eq!(sum.output()[[0]], 4);
     assert_eq!(sum.output()[[1]], 6);
 }

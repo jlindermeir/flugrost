@@ -3,7 +3,7 @@ use crate::ndarray::shape::Shape;
 
 pub trait NodeOutput {
     type Output;
-    fn output(&mut self) -> &Self::Output;
+    fn output(&self) -> Self::Output;
 }
 
 pub struct Constant<S, T>
@@ -15,8 +15,8 @@ impl<S, T> NodeOutput for Constant<S, T>
 where S: Shape, T: DType {
     type Output = NDArray<T, S>;
 
-    fn output(&mut self) -> &Self::Output {
-        &self.array
+    fn output(&self) -> Self::Output {
+        self.array.clone()
     }
 }
 
@@ -27,7 +27,7 @@ impl<N> NodeOutput for Node<N>
 where N: NodeOutput {
     type Output = N::Output;
 
-    fn output(&mut self) -> &Self::Output {
+    fn output(&self) -> Self::Output {
         self.0.output()
     }
 }

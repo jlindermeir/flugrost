@@ -1,9 +1,9 @@
-use std::ops::{Add, Sub, Mul, Div};
+use std::ops::{Add, Sub, Neg};
 use crate::computational_graph::node::{Node, NodeOutput};
 use crate::ndarray::ndarray::{DType, NDArray};
 use crate::ndarray::shape::Shape;
 
-pub struct BinaryElementwiseOp<S, T, L, R>
+pub struct AddNode<S, T, L, R>
     where S: Shape,
           T: DType,
           L: NodeOutput<Output = NDArray<T, S>>,
@@ -11,11 +11,9 @@ pub struct BinaryElementwiseOp<S, T, L, R>
 {
     pub lhs: L,
     pub rhs: R,
-    pub op: fn(&NDArray<T, S>, &NDArray<T, S>) -> NDArray<T, S>,
-    pub result: Option<NDArray<T, S>>
 }
 
-impl<S, T, L, R> NodeOutput for BinaryElementwiseOp<S, T, L, R>
+impl<S, T, L, R> NodeOutput for AddNode<S, T, L, R>
     where S: Shape,
           T: DType,
           L: NodeOutput<Output = NDArray<T, S>>,
@@ -23,39 +21,80 @@ impl<S, T, L, R> NodeOutput for BinaryElementwiseOp<S, T, L, R>
 {
     type Output = NDArray<T, S>;
 
-    fn output(&mut self) -> &Self::Output {
-        if self.result.is_none() {
-            self.result = Some((self.op)(self.lhs.output(), self.rhs.output()));
-        }
-        self.result.as_ref().unwrap()
+    fn output(&self) -> Self::Output {
+        &self.lhs.output() + &self.rhs.output()
     }
 }
 
-macro_rules! implement_binary_op {
-    ($trait:ident, $method:ident, $op:tt) => {
-        /// Implementation for array op array
-        impl<S, T, L, R> $trait<Node<R>> for Node<L>
-            where S: Shape,
-                  T: DType,
-                  L: NodeOutput<Output = NDArray<T, S>>,
-                  R: NodeOutput<Output = NDArray<T, S>>
-        {
-            type Output = Node<BinaryElementwiseOp<S, T, L, R>>;
 
-            fn $method(self, rhs: Node<R>) -> Self::Output {
-                let output = BinaryElementwiseOp {
-                    lhs: self.0,
-                    rhs: rhs.0,
-                    op: |a, b| a $op b,
-                    result: None
-                };
-                Node(output)
-            }
-        }
-    };
+impl<S, T, L, R> Add<Node<R>> for Node<L>
+    where S: Shape,
+          T: DType,
+          L: NodeOutput<Output = NDArray<T, S>>,
+          R: NodeOutput<Output = NDArray<T, S>>
+{
+    type Output = Node<AddNode<S, T, L, R>>;
+
+    fn add(self, rhs: Node<R>) -> Self::Output {
+        let output = AddNode {
+            lhs: self.0,
+            rhs: rhs.0,
+        };
+        Node(output)
+    }
 }
 
-implement_binary_op!(Add, add, +);
-implement_binary_op!(Sub, sub, -);
-implement_binary_op!(Mul, mul, *);
-implement_binary_op!(Div, div, /);
+
+pub struct NegNode<S, T, N>
+    where S: Shape,
+          T: DType,
+          N: NodeOutput<Output = NDArray<T, S>>,
+{
+    pub node: N,
+}
+
+impl<S, T, N> NodeOutput for NegNode<S, T, N>
+    where S: Shape,
+          T: DType,
+          N: NodeOutput<Output = NDArray<T, S>>
+{
+    type Output = NDArray<T, S>;
+
+    fn output(&self) -> Self::Output {
+        -&self.node.output()
+    }
+}
+
+impl<S, T, N> Neg for Node<N>
+    where S: Shape,
+          T: DType,
+          N: NodeOutput<Output = NDArray<T, S>>
+{
+    type Output = Node<NegNode<S, T, N>>;
+
+    fn neg(self) -> Self::Output {
+        let output = NegNode {
+            node: self.0,
+        };
+        Node(output)
+    }
+}
+
+impl <S, T, L, R> Sub<Node<R>> for Node<L>
+    where S: Shape,
+          T: DType,
+          L: NodeOutput<Output = NDArray<T, S>>,
+          R: NodeOutput<Output = NDArray<T, S>>
+{
+    type Output = Node<AddNode<S, T, L, NegNode<S, T, R>>>;
+
+    fn sub(self, rhs: Node<R>) -> Self::Output {
+        let output = AddNode {
+            lhs: self.0,
+            rhs: NegNode {
+                node: rhs.0,
+            },
+        };
+        Node(output)
+    }
+}
