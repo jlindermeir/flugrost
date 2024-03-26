@@ -11,6 +11,7 @@ pub trait DType: Copy
     + Display {}
 impl DType for i32 {}
 impl DType for f32 {}
+impl DType for f64 {}
 
 pub struct NDArray<T: DType, S: Shape> {
     pub shape: S,

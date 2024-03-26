@@ -1,3 +1,4 @@
+use std::sync::atomic::{AtomicUsize, Ordering};
 use crate::ndarray::ndarray::{DType, NDArray};
 use crate::ndarray::shape::Shape;
 
@@ -6,9 +7,36 @@ pub trait NodeOutput {
     fn output(&self) -> Self::Output;
 }
 
+static ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
+
 pub struct Constant<S, T>
-where S: Shape, T: DType {
-    pub array: NDArray<T, S>
+    where
+        S: Shape,
+        T: DType,
+{
+    pub id: usize,
+    pub array: NDArray<T, S>,
+}
+
+impl<S, T> Constant<S, T>
+    where
+        S: Shape,
+        T: DType,
+{
+    pub fn new(array: NDArray<T, S>) -> Self {
+        let id = ID_COUNTER.fetch_add(1, Ordering::Relaxed);
+        Self { id, array }
+    }
+}
+
+impl<S, T> PartialEq for Constant<S, T>
+    where
+        S: Shape,
+        T: DType,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
 }
 
 impl<S, T> NodeOutput for Constant<S, T>
