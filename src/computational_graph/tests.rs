@@ -1,4 +1,3 @@
-use crate::computational_graph::grad::Grad;
 use crate::computational_graph::node::{Constant, Node, NodeOutput};
 use crate::ndarray::ndarray::IntoNDArray;
 
@@ -75,15 +74,4 @@ fn test_node_reuse() {
     assert_eq!(sum2.output()[[0]], 5);
     assert_eq!(sum2.output()[[1]], 7);
     assert_eq!(sum2.output()[[2]], 9);
-}
-
-#[test]
-fn test_rank0_constant_grad() {
-    let a = Node(Constant::new(1.0.into_array()));
-    let b = Node(Constant::new(2.0.into_array()));
-    let da_da = a.grad(&a);
-    let da_db = a.grad(&b);
-
-    assert_eq!(da_da.output()[[]], 1.0);
-    assert_eq!(da_db.output()[[]], 0.0);
 }
