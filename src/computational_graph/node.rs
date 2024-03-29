@@ -29,7 +29,7 @@ impl<S, T> Constant<S, T>
     }
 }
 
-impl<S, T> PartialEq for Constant<S, T>
+impl<S, T> PartialEq for &Constant<S, T>
     where
         S: Shape,
         T: DType,
