@@ -8,10 +8,36 @@ pub trait DType: Copy
     + Mul<Output = Self>
     + Div<Output = Self>
     + Neg<Output = Self>
-    + Display {}
-impl DType for i32 {}
-impl DType for f32 {}
-impl DType for f64 {}
+    + Display {
+
+    fn zero() -> Self;
+    fn one() -> Self;
+
+}
+impl DType for i32 {
+    fn zero() -> Self {
+        0
+    }
+    fn one() -> Self {
+        1
+    }
+}
+impl DType for f32 {
+    fn zero() -> Self {
+        0.0
+    }
+    fn one() -> Self {
+        1.0
+    }
+}
+impl DType for f64 {
+    fn zero() -> Self {
+        0.0
+    }
+    fn one() -> Self {
+        1.0
+    }
+}
 
 pub struct NDArray<T: DType, S: Shape> {
     pub shape: S,

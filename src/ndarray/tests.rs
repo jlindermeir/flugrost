@@ -1,5 +1,6 @@
-use crate::ndarray::ndarray::{IntoNDArray};
+use crate::ndarray::ndarray::{IntoNDArray, NDArray};
 use crate::ndarray::ops::mat_mul;
+use crate::ndarray::shape::{Const, Rank0, Rank1, Rank2};
 
 #[test]
 fn test_rank0() {
@@ -102,4 +103,41 @@ fn test_mat_mul() {
     assert_eq!(prod[[0, 1]], 1);
     assert_eq!(prod[[1, 0]], 3);
     assert_eq!(prod[[1, 1]], 4);
+}
+
+
+#[test]
+fn test_eye() {
+    let eye = NDArray::<f64, Rank2<3, 3>>::eye();
+    assert_eq!(eye[[0, 0]], 1.0);
+    assert_eq!(eye[[0, 1]], 0.0);
+    assert_eq!(eye[[0, 2]], 0.0);
+    assert_eq!(eye[[1, 0]], 0.0);
+    assert_eq!(eye[[1, 1]], 1.0);
+    assert_eq!(eye[[1, 2]], 0.0);
+    assert_eq!(eye[[2, 0]], 0.0);
+    assert_eq!(eye[[2, 1]], 0.0);
+    assert_eq!(eye[[2, 2]], 1.0);
+}
+
+#[test]
+fn test_ones() {
+    let ones_rank_0 = NDArray::<f32, _>::ones(());
+    assert_eq!(ones_rank_0[[]], 1.0);
+
+    let ones_rank_1 = NDArray::<i32, _>::ones((Const::<3>,));
+    assert_eq!(ones_rank_1[[0]], 1);
+    assert_eq!(ones_rank_1[[1]], 1);
+    assert_eq!(ones_rank_1[[2]], 1);
+}
+
+#[test]
+fn test_zeros() {
+    let zeros_rank_0 = NDArray::<f64, _>::zeros(());
+    assert_eq!(zeros_rank_0[[]], 0.0);
+
+    let zeros_rank_1 = NDArray::<i32, _>::zeros((Const::<3>,));
+    assert_eq!(zeros_rank_1[[0]], 0);
+    assert_eq!(zeros_rank_1[[1]], 0);
+    assert_eq!(zeros_rank_1[[2]], 0);
 }
