@@ -1,6 +1,6 @@
 use crate::ndarray::ndarray::{IntoNDArray, NDArray};
 use crate::ndarray::ops::mat_mul;
-use crate::ndarray::shape::{Const, Rank0, Rank1, Rank2};
+use crate::ndarray::shape::{Const, Rank2};
 
 #[test]
 fn test_rank0() {

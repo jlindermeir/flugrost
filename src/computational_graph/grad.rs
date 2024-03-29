@@ -18,14 +18,14 @@ where N: NodeOutput + Grad<S, T>,
     }
 }
 
-impl Grad<Rank0, f64> for Constant<Rank0, f64> {
-    type GradOutput = Constant<Rank0, f64>;
+impl<T: DType> Grad<Rank0, T> for Constant<Rank0, T> {
+    type GradOutput = Constant<Rank0, T>;
 
-    fn grad(&self, target: &Node<Constant<Rank0, f64>>) -> Self::GradOutput {
+    fn grad(&self, target: &Node<Constant<Rank0, T>>) -> Self::GradOutput {
         if self == &target.0 {
-            Constant::new(1.0.into_array())
+            Constant::new(T::one().into_array())
         } else {
-            Constant::new(0.0.into_array())
+            Constant::new(T::zero().into_array())
         }
     }
 }
