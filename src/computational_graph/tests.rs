@@ -50,3 +50,28 @@ fn test_multiplication() {
     assert_eq!(prod.output()[[1]], 10);
     assert_eq!(prod.output()[[2]], 18);
 }
+
+#[test]
+fn test_division() {
+    let a = Node(Constant::new([1, 2, 3].into_array()));
+    let b = Node(Constant::new([4, 5, 6].into_array()));
+    let div = &a / &b;
+    assert_eq!(div.output()[[0]], 0);
+    assert_eq!(div.output()[[1]], 0);
+    assert_eq!(div.output()[[2]], 0);
+}
+
+#[test]
+fn test_node_reuse() {
+    let a = Node(Constant::new([1, 2, 3].into_array()));
+    let b = Node(Constant::new([4, 5, 6].into_array()));
+    let c = Node(Constant::new([4, 5, 6].into_array()));
+    let sum1 = &a + &b;
+    let sum2 = &a + &c;
+    assert_eq!(sum1.output()[[0]], 5);
+    assert_eq!(sum1.output()[[1]], 7);
+    assert_eq!(sum1.output()[[2]], 9);
+    assert_eq!(sum2.output()[[0]], 5);
+    assert_eq!(sum2.output()[[1]], 7);
+    assert_eq!(sum2.output()[[2]], 9);
+}
