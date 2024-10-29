@@ -15,7 +15,7 @@ pub struct Constant<S, T>
         T: DType,
 {
     pub id: usize,
-    pub array: NDArray<T, S>,
+    pub array: Box<NDArray<T, S>>,
 }
 
 impl<S, T> Constant<S, T>
@@ -25,11 +25,11 @@ impl<S, T> Constant<S, T>
 {
     pub fn new(array: NDArray<T, S>) -> Self {
         let id = ID_COUNTER.fetch_add(1, Ordering::Relaxed);
-        Self { id, array }
+        Self { id, array: Box::new(array) }
     }
 }
 
-impl<S, T> PartialEq for &Constant<S, T>
+impl<S, T> PartialEq for Constant<S, T>
     where
         S: Shape,
         T: DType,
@@ -44,11 +44,11 @@ where S: Shape, T: DType {
     type Output = NDArray<T, S>;
 
     fn output(&self) -> Self::Output {
-        self.array.clone()
+        (*self.array).clone()
     }
 }
 
-pub struct Node<N>(pub N)
+pub struct Node<N>(pub Box<N>)
 where N: NodeOutput;
 
 impl<N> NodeOutput for Node<N>

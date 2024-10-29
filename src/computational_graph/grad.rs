@@ -31,6 +31,6 @@ impl<T: DType> Grad<Rank0, T, Rank0> for Constant<Rank0, T> {
                 Constant::new(T::zero().into_array())
             }
         };
-        Node(grad_result)
+        Node(Box::new(grad_result))
     }
 }

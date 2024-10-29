@@ -41,7 +41,7 @@ macro_rules! implement_binary_op_node {
                     lhs: &self.0,
                     rhs: &rhs.0,
                 };
-                Node(output)
+                Node(Box::new(output))
             }
         }
     };
@@ -83,6 +83,6 @@ impl<'a, S, T, N> Neg for &'a Node<N>
         let output = NegNode {
             node: &self.0,
         };
-        Node(output)
+        Node(Box::new(output))
     }
 }
