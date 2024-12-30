@@ -91,6 +91,8 @@ mod tests {
         assert_eq!(<Rank1<4> as Shape>::compute_offset(&[2, 3]), Err("Incorrect number of indices"));
 
         // Test a 2-D shape
+        assert_eq!(<Rank2<2, 3> as Shape>::compute_offset(&[0, 0]), Ok(0));
+        assert_eq!(<Rank2<2, 3> as Shape>::compute_offset(&[0, 2]), Ok(4));
         assert_eq!(<Rank2<2, 3> as Shape>::compute_offset(&[1, 2]), Ok(5));
         assert_eq!(<Rank2<2, 3> as Shape>::compute_offset(&[2, 4]), Err("Index out of bounds"));
         assert_eq!(<Rank2<2, 3> as Shape>::compute_offset(&[1]), Err("Incorrect number of indices"));
