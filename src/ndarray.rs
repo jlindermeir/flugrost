@@ -7,11 +7,10 @@ pub struct NDArray<S: Shape, T> {
 
 impl<S: Shape, T> NDArray<S, T> {
     pub fn new(data: Vec<T>, shape: S) -> Self {
-        let expected_size = shape.size();
-        if data.len() != expected_size {
+        if data.len() != S::SIZE {
             panic!(
                 "Expected data of size {}, got size {}",
-                expected_size,
+                S::SIZE,
                 data.len()
             );
         }

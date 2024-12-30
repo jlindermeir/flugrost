@@ -13,16 +13,40 @@ pub type Rank2<const D0: usize, const D1: usize> = DimCons<D1, Rank1<D0>>;
 pub trait Shape {
     const RANK: usize;
     const SIZE: usize;
+    fn compute_offset(indices: &[usize]) -> Result<usize, &str>;
 }
 
 impl Shape for DimNil {
     const RANK: usize = 0;
     const SIZE: usize = 1;
+    fn compute_offset(indices: &[usize]) -> Result<usize, &str> {
+        if indices.is_empty() {
+            Ok(0)
+        } else {
+            Err("Cannot index into a 0-D shape")
+        }
+    }
 }
 
 impl<const D: usize, Tail: Shape> Shape for DimCons<D, Tail> {
     const RANK: usize = 1 + Tail::RANK;
     const SIZE: usize = D * Tail::SIZE;
+    fn compute_offset(indices: &[usize]) -> Result<usize, &str> {
+        if indices.len() != Self::RANK {
+            return Err("Incorrect number of indices");
+        }
+
+        if let Some((head, tail)) = indices.split_last() {
+            if *head >= D {
+                return Err("Index out of bounds");
+            }
+
+            let tail_offset = Tail::compute_offset(tail)?;
+            Ok(head * Tail::SIZE + tail_offset)
+        } else {
+            Err("Incorrect number of indices")
+        }
+    }
 }
 
 #[cfg(test)]
@@ -54,5 +78,21 @@ mod tests {
 
         // Another quick example
         assert_eq!(<Rank2<4, 5> as Shape>::SIZE, 20);
+    }
+
+    #[test]
+    fn test_compute_offset() {
+        // Test a 0-D shape
+        assert_eq!(<Rank0 as Shape>::compute_offset(&[]), Ok(0));
+
+        // Test a 1-D shape
+        assert_eq!(<Rank1<4> as Shape>::compute_offset(&[2]), Ok(2));
+        assert_eq!(<Rank1<4> as Shape>::compute_offset(&[4]), Err("Index out of bounds"));
+        assert_eq!(<Rank1<4> as Shape>::compute_offset(&[2, 3]), Err("Incorrect number of indices"));
+
+        // Test a 2-D shape
+        assert_eq!(<Rank2<2, 3> as Shape>::compute_offset(&[1, 2]), Ok(5));
+        assert_eq!(<Rank2<2, 3> as Shape>::compute_offset(&[2, 4]), Err("Index out of bounds"));
+        assert_eq!(<Rank2<2, 3> as Shape>::compute_offset(&[1]), Err("Incorrect number of indices"));
     }
 }
