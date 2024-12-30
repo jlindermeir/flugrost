@@ -1,5 +1,5 @@
 use crate::dtype::DType;
-use crate::shape::{Rank0, Shape};
+use crate::shape::{Rank0, Rank1, Shape};
 
 pub struct NDArray<S: Shape, T> {
     data: Vec<T>,
@@ -25,15 +25,6 @@ impl<S: Shape, T: DType> NDArray<S, T> {
     }
 }
 
-impl <T: DType> NDArray<Rank0, T> {
-    pub fn new_scalar(value: T) -> Self {
-        Self {
-            data: vec![value],
-            shape_marker: std::marker::PhantomData,
-        }
-    }
-}
-
 
 #[cfg(test)]
 mod tests {
@@ -51,11 +42,5 @@ mod tests {
         assert_eq!(array.get(&[1, 1]), Ok(4));
         assert_eq!(array.get(&[0, 2]), Ok(5));
         assert_eq!(array.get(&[1, 2]), Ok(6));
-    }
-
-    #[test]
-    fn test_scalar() {
-        let scalar = NDArray::<Rank0, i32>::new_scalar(42);
-        assert_eq!(scalar.get(&[]), Ok(42));
     }
 }
