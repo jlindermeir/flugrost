@@ -1,5 +1,5 @@
 use crate::dtype::DType;
-use crate::shape::{Rank0, Rank1, Shape};
+use crate::shape::{Shape};
 
 pub struct NDArray<S: Shape, T> {
     data: Vec<T>,
