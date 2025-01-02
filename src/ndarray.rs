@@ -28,13 +28,14 @@ impl<S: Shape, T: DType> NDArray<S, T> {
 
 #[cfg(test)]
 mod tests {
+    use crate::number::{Three, Two};
     use super::*;
     use crate::shape::{Rank2};
 
     #[test]
     fn test_ndarray() {
         let data = vec![1, 2, 3, 4, 5, 6];
-        let array = NDArray::<Rank2<2, 3>, i32>::new(data);
+        let array = NDArray::<Rank2<Two, Three>, i32>::new(data);
 
         assert_eq!(array.get(&[0, 0]), Ok(1));
         assert_eq!(array.get(&[1, 0]), Ok(2));
