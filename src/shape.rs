@@ -16,6 +16,7 @@ pub trait Shape {
     const RANK: usize;
     const N_ELEMENTS: usize;
     fn compute_offset(indices: &[usize]) -> Result<usize, &str>;
+    fn shape() -> Vec<usize>;
 }
 
 impl Shape for DimNil {
@@ -27,6 +28,9 @@ impl Shape for DimNil {
         } else {
             Err("Cannot index into a 0-D shape")
         }
+    }
+    fn shape() -> Vec<usize> {
+        vec![]
     }
 }
 
@@ -48,6 +52,11 @@ impl<D: Nat, Tail: Shape> Shape for DimCons<D, Tail> {
         } else {
             Err("Incorrect number of indices")
         }
+    }
+    fn shape() -> Vec<usize> {
+        let mut shape = Tail::shape();
+        shape.insert(0, D::VALUE);
+        shape
     }
 }
 
@@ -99,5 +108,17 @@ mod tests {
         assert_eq!(<Rank2<Two, Three> as Shape>::compute_offset(&[1, 2]), Ok(5));
         assert_eq!(<Rank2<Two, Three> as Shape>::compute_offset(&[2, 4]), Err("Index out of bounds"));
         assert_eq!(<Rank2<Two, Three> as Shape>::compute_offset(&[1]), Err("Incorrect number of indices"));
+    }
+
+    #[test]
+    fn test_shape() {
+        // Test a 0-D shape
+        assert_eq!(<Rank0 as Shape>::shape(), vec![]);
+
+        // Test a 1-D shape
+        assert_eq!(<Rank1<Four> as Shape>::shape(), vec![4]);
+
+        // Test a 2-D shape
+        assert_eq!(<Rank2<Two, Three> as Shape>::shape(), vec![3, 2]);
     }
 }
