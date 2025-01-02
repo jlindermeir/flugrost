@@ -93,8 +93,8 @@ mod tests {
         assert_eq!(AC::RANK, 3);
         assert_eq!(BC::RANK, 3);
 
-        assert_eq!(AB::SIZE, 6);
-        assert_eq!(AC::SIZE, 9);
-        assert_eq!(BC::SIZE, 18);
+        assert_eq!(AB::N_ELEMENTS, 6);
+        assert_eq!(AC::N_ELEMENTS, 9);
+        assert_eq!(BC::N_ELEMENTS, 18);
     }
 }

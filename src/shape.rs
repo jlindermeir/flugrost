@@ -14,13 +14,13 @@ pub type Rank2<D0: Nat, D1: Nat> = DimCons<D1, Rank1<D0>>;
 
 pub trait Shape {
     const RANK: usize;
-    const SIZE: usize;
+    const N_ELEMENTS: usize;
     fn compute_offset(indices: &[usize]) -> Result<usize, &str>;
 }
 
 impl Shape for DimNil {
     const RANK: usize = 0;
-    const SIZE: usize = 1;
+    const N_ELEMENTS: usize = 1;
     fn compute_offset(indices: &[usize]) -> Result<usize, &str> {
         if indices.is_empty() {
             Ok(0)
@@ -32,7 +32,7 @@ impl Shape for DimNil {
 
 impl<D: Nat, Tail: Shape> Shape for DimCons<D, Tail> {
     const RANK: usize = 1 + Tail::RANK;
-    const SIZE: usize = D::VALUE * Tail::SIZE;
+    const N_ELEMENTS: usize = D::VALUE * Tail::N_ELEMENTS;
     fn compute_offset(indices: &[usize]) -> Result<usize, &str> {
         if indices.len() != Self::RANK {
             return Err("Incorrect number of indices");
@@ -44,7 +44,7 @@ impl<D: Nat, Tail: Shape> Shape for DimCons<D, Tail> {
             }
 
             let tail_offset = Tail::compute_offset(tail)?;
-            Ok(head * Tail::SIZE + tail_offset)
+            Ok(head * Tail::N_ELEMENTS + tail_offset)
         } else {
             Err("Incorrect number of indices")
         }
@@ -71,16 +71,16 @@ mod tests {
     #[test]
     fn test_size() {
         // The size of DimNil is 1 by convention
-        assert_eq!(<Rank0 as Shape>::SIZE, 1);
+        assert_eq!(<Rank0 as Shape>::N_ELEMENTS, 1);
 
         // The size of (D0) is D0
-        assert_eq!(<Rank1<Four> as Shape>::SIZE, 4);
+        assert_eq!(<Rank1<Four> as Shape>::N_ELEMENTS, 4);
 
         // The size of (D1, D0) is D1 * D0
-        assert_eq!(<Rank2<Two, Three> as Shape>::SIZE, 6);
+        assert_eq!(<Rank2<Two, Three> as Shape>::N_ELEMENTS, 6);
 
         // Another quick example
-        assert_eq!(<Rank2<Four, Five> as Shape>::SIZE, 20);
+        assert_eq!(<Rank2<Four, Five> as Shape>::N_ELEMENTS, 20);
     }
 
     #[test]

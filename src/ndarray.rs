@@ -8,10 +8,10 @@ pub struct NDArray<S: Shape, T> {
 
 impl<S: Shape, T: DType> NDArray<S, T> {
     pub fn new(data: Vec<T>) -> Self {
-        if data.len() != S::SIZE {
+        if data.len() != S::N_ELEMENTS {
             panic!(
                 "Expected data of size {}, got size {}",
-                S::SIZE,
+                S::N_ELEMENTS,
                 data.len()
             );
         }
