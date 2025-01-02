@@ -2,7 +2,7 @@ use crate::dtype::DType;
 use crate::shape::{Shape};
 
 pub struct NDArray<S: Shape, T> {
-    data: Vec<T>,
+    pub(crate) data: Vec<T>,
     shape_marker: std::marker::PhantomData<S>,
 }
 
@@ -17,6 +17,10 @@ impl<S: Shape, T: DType> NDArray<S, T> {
         }
 
         Self { data, shape_marker: std::marker::PhantomData }
+    }
+
+    pub fn shape(&self) -> Vec<usize> {
+        S::shape()
     }
 
     pub fn get<'a>(&'a self, indices: &'a [usize]) -> Result<T, &str> {

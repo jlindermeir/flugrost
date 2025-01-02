@@ -1,8 +1,8 @@
 use crate::number::{GreaterThanZero, Nat, One};
-use crate::shape::{DimCons, DimNil};
+use crate::shape::{DimCons, DimNil, Shape};
 
 pub trait BroadcastOneDim<Rhs> {
-    type Output;
+    type Output: Nat;
 }
 
 impl<D: GreaterThanZero> BroadcastOneDim<D> for One {
@@ -20,10 +20,10 @@ impl<D: Nat> BroadcastOneDim<D> for D {
 }
 
 pub trait Broadcast<Rhs> {
-    type Output;
+    type Output: Shape;
 }
 
-impl<Head1, Tail1, Head2, Tail2> Broadcast<DimCons<Head2, Tail2>> for DimCons<Head1, Tail1>
+impl<Head1: Nat, Tail1: Shape, Head2: Nat, Tail2: Shape> Broadcast<DimCons<Head2, Tail2>> for DimCons<Head1, Tail1>
 where
     Head1: BroadcastOneDim<Head2>,
     Tail1: Broadcast<Tail2>,

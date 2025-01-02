@@ -1,4 +1,6 @@
-pub trait DType: Copy + PartialEq + std::fmt::Debug {
+use std::ops::{Add, Div, Mul, Sub};
+
+pub trait DType: Copy + PartialEq + std::fmt::Debug + Add<Output=Self> + Sub<Output=Self> + Mul<Output=Self> + Div<Output=Self> {
     fn zero() -> Self;
     fn one() -> Self;
 }
