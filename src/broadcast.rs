@@ -54,7 +54,7 @@ where
 #[cfg(test)]
 mod tests {
     use crate::number::{Three, Two};
-    use crate::shape::{Shape};
+    use crate::shape::{Rank1, Rank2, Rank3, Shape};
     use super::*;
 
 
@@ -74,13 +74,13 @@ mod tests {
     #[test]
     fn test_broadcast() {
         // Shape (3,)
-        type A = DimCons<Three, DimNil>;
+        type A = Rank1<Three>;
 
         // Shape (2, 1)
-        type B = DimCons<One, DimCons<Two, DimNil>>;
+        type B = Rank2<Two, One>;
 
         // Shape (3, 1, 3)
-        type C = DimCons<Three, DimCons<One, DimCons<Three, DimNil>>>;
+        type C = Rank3<Three, One, Three>;
 
         // Shape (2, 3)
         type AB = <A as Broadcast<B>>::Output;
@@ -96,5 +96,9 @@ mod tests {
         assert_eq!(AB::N_ELEMENTS, 6);
         assert_eq!(AC::N_ELEMENTS, 9);
         assert_eq!(BC::N_ELEMENTS, 18);
+
+        assert_eq!(AB::shape(), vec![2, 3]);
+        assert_eq!(AC::shape(), vec![3, 1, 3]);
+        assert_eq!(BC::shape(), vec![3, 2, 3]);
     }
 }

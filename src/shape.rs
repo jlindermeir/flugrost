@@ -10,6 +10,7 @@ pub struct DimCons<Head, Tail>(core::marker::PhantomData<(Head, Tail)>);
 pub type Rank0 = DimNil;
 pub type Rank1<D0: Nat> = DimCons<D0, Rank0>;
 pub type Rank2<D0: Nat, D1: Nat> = DimCons<D1, Rank1<D0>>;
+pub type Rank3<D0: Nat, D1: Nat, D2: Nat> = DimCons<D2, Rank2<D0, D1>>;
 
 
 pub trait Shape {
