@@ -17,6 +17,16 @@ pub trait Shape {
     const RANK: usize;
     const N_ELEMENTS: usize;
     fn compute_offset(indices: &[usize]) -> Result<usize, &str>;
+    fn compute_indices(offset: usize) -> Vec<usize> {
+        let mut indices = vec![0; Self::RANK];
+        let mut offset = offset;
+        for i in 0..Self::RANK {
+            let dim_size = Self::shape()[i];
+            indices[i] = offset % dim_size;
+            offset /= dim_size;
+        }
+        indices
+    }
     fn shape() -> Vec<usize>;
 }
 
