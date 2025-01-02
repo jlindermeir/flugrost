@@ -12,7 +12,11 @@ where
     type Output = NDArray<S1::Output, T>;
 
     fn add(self, rhs: NDArray<S2, T>) -> Self::Output {
-        let data = self
+        // Broadcast the arrays
+        let lhs = self.broadcast::<S2>();
+        let rhs = rhs.broadcast::<S1>();
+
+        let data = lhs
             .data
             .into_iter()
             .zip(rhs.data.into_iter())
@@ -26,7 +30,7 @@ where
 #[cfg(test)]
 mod tests {
     use crate::number::{One, Three, Two};
-    use crate::shape::{Rank2};
+    use crate::shape::{Rank1, Rank2};
     use crate::ndarray::NDArray;
 
     #[test]
@@ -48,12 +52,19 @@ mod tests {
 
     #[test]
     fn test_add_broadcast() {
-        let array1 = NDArray::<Rank2<Two, One>, i32>::ones();
-        let array2 = NDArray::<Rank2<One, Three>, i32>::ones();
+        let data1 = vec![1, 2, 3];
+        let data2 = vec![6, 7];
+        let array1 = NDArray::<Rank1<Three>, i32>::new(data1);
+        let array2 = NDArray::<Rank2<Two, One>, i32>::new(data2);
 
         let result = array1 + array2;
 
         assert_eq!(result.shape(), vec![2, 3]);
-        assert_eq!(result.get(&[0, 0]), Ok(2));
+        assert_eq!(result.get(&[0, 0]), Ok(7));
+        assert_eq!(result.get(&[1, 0]), Ok(8));
+        assert_eq!(result.get(&[0, 1]), Ok(8));
+        assert_eq!(result.get(&[1, 1]), Ok(9));
+        assert_eq!(result.get(&[0, 2]), Ok(9));
+        assert_eq!(result.get(&[1, 2]), Ok(10));
     }
 }
