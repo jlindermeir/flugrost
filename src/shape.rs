@@ -55,7 +55,7 @@ impl<D: Nat, Tail: Shape> Shape for DimCons<D, Tail> {
     }
     fn shape() -> Vec<usize> {
         let mut shape = Tail::shape();
-        shape.insert(0, D::VALUE);
+        shape.push(D::VALUE);
         shape
     }
 }
@@ -119,6 +119,6 @@ mod tests {
         assert_eq!(<Rank1<Four> as Shape>::shape(), vec![4]);
 
         // Test a 2-D shape
-        assert_eq!(<Rank2<Two, Three> as Shape>::shape(), vec![3, 2]);
+        assert_eq!(<Rank2<Two, Three> as Shape>::shape(), vec![2, 3]);
     }
 }
