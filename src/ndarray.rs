@@ -23,6 +23,19 @@ impl<S: Shape, T: DType> NDArray<S, T> {
         let offset = S::compute_offset(indices)?;
         Ok(self.data[offset])
     }
+
+    pub fn full(value: T) -> Self {
+        let data = vec![value; S::N_ELEMENTS];
+        Self::new(data)
+    }
+
+    pub fn ones() -> Self {
+        Self::full(T::one())
+    }
+
+    pub fn zeros() -> Self {
+        Self::full(T::zero())
+    }
 }
 
 
