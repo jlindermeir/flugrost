@@ -2,7 +2,8 @@ use std::ops::{Add, Div, Mul, Sub};
 use crate::broadcast::Broadcast;
 use crate::dtype::DType;
 use crate::ndarray::NDArray;
-use crate::shape::Shape;
+use crate::number::Nat;
+use crate::shape::{DimCons, Shape};
 
 macro_rules! impl_broadcast_op {
     ($Op:ident, $op_fn:ident, $op_symbol:tt) => {
@@ -107,5 +108,7 @@ mod tests {
         assert_eq!(div_result.get(&[1]), Ok(1));
         assert_eq!(div_result.get(&[2]), Ok(1));
     }
+
+
 
 }
