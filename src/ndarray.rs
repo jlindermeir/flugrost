@@ -29,7 +29,7 @@ impl<S: Shape, T: DType> NDArray<S, T> {
         Ok(self.data[offset])
     }
 
-    pub fn broadcast<SN: Broadcast<S>>(self) -> NDArray<SN::Output, T> {
+    pub fn broadcast<SN: Broadcast<S>>(&self) -> NDArray<SN::Output, T> {
         let old_shape = S::shape();
 
         let mut new_data = Vec::with_capacity(SN::Output::N_ELEMENTS);
