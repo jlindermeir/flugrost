@@ -90,17 +90,8 @@ new array with the desired shape.
 Element wise operations such as addition or multiplication are provided via a
 macro that performs broadcasting of both operands before applying the operator.
 
-## Why all the type level machinery?
+## Inspiration and status
 
-`usize` const generics work well for fixed size arrays but they cannot be used
-to compute new sizes.  Tuples suffer from the same problem: each arity requires
-a bespoke implementation.  To express arbitrary shapes and reason about them we
-need types that can be manipulated recursively.  The linked list based shapes
-together with the small natural number hierarchy let the compiler evaluate ranks
-and element counts and also derive the result of broadcasting.  Errors like
-mismatched dimensions therefore become compile time errors instead of runtime
-panics.
-
-This repository is merely a starting point but demonstrates that a surprising
-amount of ndarray functionality can be expressed with the tools available in
-stable Rust today.
+This crate was inspired by the [dxdy](https://github.com/coreylowman/dfdx)
+project by Corey Lowman, but (to my knowledge) without type-level broadcasting. 
+Look there if you want to apply these concepts in production code.
