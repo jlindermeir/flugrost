@@ -28,7 +28,7 @@ pub trait Nat {
 ```
 
 Higher numbers are created via type aliases such as `Two` or `Three` which are
-just nested applications of `Succ`【F:src/number.rs†L1-L25】.
+just nested applications of `Succ`.
 
 ## Shapes as linked lists
 
@@ -49,7 +49,7 @@ pub type Rank2<D0, D1> = DimCons<D1, Rank1<D0>>;
 
 The `Shape` trait then computes meta information like `RANK` and
 `N_ELEMENTS` and provides helpers to translate between multi dimensional indices
-and flat offsets【F:src/shape.rs†L16-L70】.
+and flat offsets.
 
 ## Compile time broadcasting
 
@@ -68,8 +68,7 @@ impl<D: GreaterThanZero> BroadcastOneDim<One> for D { type Output = D; }
 impl<D: Nat>              BroadcastOneDim<D> for D   { type Output = D; }
 ```
 
-Larger shapes build on this to compute a new `Output` shape at compile time
-【F:src/broadcast.rs†L1-L52】.
+Larger shapes build on this to compute a new `Output` shape at compile time.
 
 ## The `NDArray` type
 
@@ -85,11 +84,10 @@ pub struct NDArray<S: Shape, T> {
 ```
 
 The `broadcast` method uses the compile time result of `Broadcast` to create a
-new array with the desired shape【F:src/ndarray.rs†L1-L63】.
+new array with the desired shape.
 
 Element wise operations such as addition or multiplication are provided via a
-macro that performs broadcasting of both operands before applying the operator
-【F:src/ops.rs†L1-L39】.
+macro that performs broadcasting of both operands before applying the operator.
 
 ## Why all the type level machinery?
 
