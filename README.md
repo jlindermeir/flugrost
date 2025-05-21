@@ -1,4 +1,5 @@
-# Flugrost
+# Flugrost: NDArrays with typed shapes _and broadcasting_
+![broadcast.png](docs/broadcast.png)
 
 ## Motivation
 
